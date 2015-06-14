@@ -1,5 +1,5 @@
 from instrument.mwfreqsynth.base import *
-import visa
+#import visa
 
 class HP8664A(MWFreqSynth):
 
@@ -10,34 +10,29 @@ class HP8664A(MWFreqSynth):
         self._write(self.write_instruction)
 
     parameters = {
-        'freq':         Parameter(  'Frequency',
-                                    SpectrumDomain(float, 0.1, 3000)),
-        'freq_unit':    Parameter(  'Frequency Unit',
-                                    SetDomain(str, [
-                                            'HZ',
-                                            'KHZ',
-                                            'MHZ',
-                                            'GHZ',
-                                    ])),
-        'amp':          Parameter(  'Amplitude',
-                                    SpectrumDomain(float, 0, 1000)),
-        'amp_unit':     Parameter(  'Amplitude Unit',
-                                    SetDomain(str, [
-                                            'dBmW',
-                                            'dBuV',
-                                            'V',
-                                            'mV',
-                                            'uV',
-                                    ])),
-        'opmode':       Parameter(  'Operation Mode',
-                                    SetDomain(str, [
-                                            'Continuous Wave',
-                                            'Pulse',
-                                            'Sweep',
-                                    ])),
+        'amp':          FloatParameter('Amplitude', 0.0, 1000.0),
+        'amp_unit':     OptionParameter('Amplitude Unit', [
+                                'dBmW',
+                                'dBuV',
+                                'V',
+                                'mV',
+                                'uV',
+                        ]),
+        'freq':         FloatParameter('Frequency', 0.1, 3000.0),
+        'freq_unit':    OptionParameter('Frequency Unit', [
+                                'HZ',
+                                'KHZ',
+                                'MHZ',
+                                'GHZ',
+                        ]),
+        'opmode':       OptionParameter('Operation Mode', [
+                                'Continuous Wave',
+                                'Pulse',
+                                'Sweep',
+                        ]),
     }
 
     instructions = {
-        'set_freq':     Instruction('FREQ:CW {0}{1}', ['freq', 'freq_unit']),
-        'get_freq':     Instruction('FREQ:CW?', [])
+        'set_freq':     Instruction('FREQ:CW {freq}{freq_unit}'),
+        'get_freq':     Instruction('FREQ:CW?')
     }

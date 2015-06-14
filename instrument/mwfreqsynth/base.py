@@ -2,14 +2,10 @@ from instrument.base import *
 
 class MWFreqSynth(Instrument):
     parameters = {
-        'freq':         Parameter(  'Frequency',
-                                    UndefinedDomain()),
-        'freq_unit':    Parameter(  'Frequency Unit',
-                                    UndefinedDomain()),
-        'amp':          Parameter(  'Amplitude',
-                                    UndefinedDomain()),
-        'amp_unit':     Parameter(  'Amplitude Unit',
-                                    UndefinedDomain()),
+        'freq':         UndefinedParameter('Frequency'),
+        'freq_unit':    UndefinedParameter('Frequency Unit'),
+        'amp':          UndefinedParameter('Amplitude'),
+        'amp_unit':     UndefinedParameter('Amplitude Unit'),
     }
 
     def get_power(self):
