@@ -36,7 +36,7 @@ class UndefinedParameter(Parameter):
         name: [inherited]
     """
     def __init__(self, name):
-        super().__init__(name)
+        Parameter.__init__(self, name)
 
     def is_valid(self, param_value):
         raise ParameterError('Parameter bounds not defined.')
@@ -63,7 +63,7 @@ class StringParameter(Parameter):
     False
     """
     def __init__(self, name, pattern):
-        super().__init__(name)
+        Parameter.__init__(self, name)
         self.regex = re.compile(pattern)
 
     def is_valid(self, param_value):
@@ -84,7 +84,7 @@ class IntParameter(Parameter):
         max: A integer specifying the maximum bound, or None if no such bound.
     """
     def __init__(self, name, min=None, max=None):
-        super().__init__(name)
+        Parameter.__init__(self, name)
         self.min = min
         self.max = max
 
@@ -110,7 +110,7 @@ class FloatParameter(Parameter):
     True
     """
     def __init__(self, name, min, max):
-        super().__init__(name)
+        Parameter.__init__(self, name)
         self.min = min
         self.max = max
 
@@ -127,7 +127,7 @@ class OptionParameter(Parameter):
         options: A list of strings containing valid options
     """
     def __init__(self, name, options):
-        super().__init__(name)
+        Parameter.__init__(self, name)
         self.options = options
 
     def is_valid(self, param_value):
@@ -136,7 +136,7 @@ class OptionParameter(Parameter):
 # Is this necessary?
 class CompoundParameter(Parameter):
     def __init__(self, name, parameters):
-        super().__init__(name)
+        Parameter.__init__(self, name)
         self.parameters = parameters
 
     def is_valid(self, param_value):

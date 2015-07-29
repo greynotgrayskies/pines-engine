@@ -25,14 +25,18 @@ class Instrument(object):
     will override the ancestor parameter.
 
     To instantiate an Instrument, pass in a dictionary of keyword arguments
-    mapping values for each parameter. The
+    mapping values for each parameter.
 
     Class Attribute:
-        instructions: A dictionary mapping instruction names to Instructions.
-        parameters: A dictonary of parameters
+        _instructions (dict): A mapping of names to Instructions.
+        _parameters (dict): A mapping of names to parameters.
 
     Instance Attributes:
-        address: A string containing the hardware address
+        _connected (bool): Indicates whether the instrument is connected.
+        _engine (Engine): The experiment engine
+
+    Parameters:
+        address (str): The hardware address
 
     Abstract Methods:
         _read
@@ -50,17 +54,16 @@ class Instrument(object):
     >>> instrument2.address
     '789'
     """
-    instructions = {}
-    # TODO(Jeffrey): Unintuitive to read and write. Need to find a better way to
-    # define instrument parameters.
-    #   - Initializing a class maybe?
-    parameters = {
+    _parameters = {
         'address': StringParameter('Address', '.+'),
     }
 
-    def __init__(self, **kwargs):
-        all_params = self._all_parameters()
+    def __init__(self, engine, **kwargs):
+        self._engine = engine
+        self._connected = False
+        self._instr = None
 
+        all_params = self._all_parameters()
         if set(all_params.keys()) != set(kwargs.keys()):
             for param in all_params.keys():
                 if param not in kwargs:
@@ -106,22 +109,23 @@ class Instrument(object):
         """
         raise NotImplemented()
 
-    ###################
-    ## Other Methods ##
-    ###################
 
-    def _execute_instruction(self, instruction_name):
-        """Instructs an instrument to execute an instruction. This method will
-        look for an attribute `instructions` which is a dictionary mapping an
-        instruction name to an Instruction object, that should be defined
+    #####################
+    ## Utility Methods ##
+    #####################
+
+    def _instruction_str(self, instruction_name):
+        """Retrieves a formatted instruction string for an instrument. This
+        method will look up an instruction in the `_instructions` dictionary,
+        and format it with the current instrument settings.
 
         Args:
-            instruction name: A string of the instruction name
+            instruction_name (str): The instruction name
 
         Returns:
-            The value that the instruction would return
+            str: A formatted instruction
         """
-        raise NotImplemented()
+        return self._instructions[instruction_name].format(**self.__dict__)
 
     def _all_parameters(self):
         """Returns a dictionary of all parameters of a class. This dictionary is
@@ -137,19 +141,27 @@ class Instrument(object):
         Returns:
             A dictionary mapping parameter strings to Parameter objects.
         """
-        all_params = dict(self.parameters)
-        cls = type(self).__bases__[0]
-        while cls is not object:
-            if not hasattr(cls, 'parameters'):
-                raise SyntaxError('{0} class has no "parameter" attribute. Check definition file and make sure that the class has "parameter" defined.'.format(cls.__name__))
-            for param in cls.parameters:
-                if param in all_params:
-                    continue
-                else:
-                    all_params[param] = cls.parameters[param]
-            cls = cls.__bases__[0]
-        return all_params
+        return self._scope_attributes('_parameters')
 
+
+    #####################
+    ## Private Methods ##
+    #####################
+
+    def _scope_attributes(self, attr):
+        all_attrs = dict(getattr(self, attr))
+        cls = type(self).__bases__[0]
+        # TODO(Jeffrey): Should probably support multiple inheritance after all
+        while cls is not object:
+            if not hasattr(cls, attr):
+                raise InstrumentError('{0} class has no "{1}" attribute. Check definitition file and make sure that the class has "{1}" defined.'.format(cls.__name, attr))
+            superclass_attrs = getattr(cls, attr)
+            for key in superclass_attrs:
+                if key not in all_attrs:
+                    all_attrs[key] = superclass_attrs[key]
+            cls = cls.__bases__[0]
+        return all_attrs
+                
 
 ##########################
 ## Machine Instructions ##
@@ -167,7 +179,7 @@ class Instruction(object):
         format: The format of an instruction
 
     >>> instrument = ExampleInstrument(address='123', value=100)
-    >>> instruct = Instrument('arg0: {address}; arg1: {value}')
+    >>> instruct = Instruction('arg0: {address}; arg1: {value}')
     >>> instruct.to_string(instrument)
     'arg0: 123; arg1: 100'
     """

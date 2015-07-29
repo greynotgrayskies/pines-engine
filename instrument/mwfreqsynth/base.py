@@ -1,12 +1,13 @@
 from instrument.base import *
 
 class MWFreqSynth(Instrument):
-    parameters = {
+    _parameters = {
         'freq':         UndefinedParameter('Frequency'),
         'freq_unit':    UndefinedParameter('Frequency Unit'),
         'amp':          UndefinedParameter('Amplitude'),
         'amp_unit':     UndefinedParameter('Amplitude Unit'),
     }
+    _instructions = {}
 
     def get_power(self):
         raise NotImplemented()
