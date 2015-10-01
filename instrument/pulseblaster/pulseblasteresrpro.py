@@ -72,7 +72,8 @@ class PulseBlasterESRPRO(PulseBlaster):
     #       CONTINUE, JSR, RTS and LONG_DELAY opcodes require a minimum
     #       instruction length of at least 6 clock-cycles (12 ns).
 
-    def continue_inst(self, flags, pulse, length):
+    @staticmethod
+    def continue_inst(flags, pulse, length):
         """Sends a CONTINUE instruction to a PulseBlaster. Program execution
         continues to next instruction. See note [1] and [2].
 
@@ -89,7 +90,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'CONTINUE', 0, length)
 
-    def stop_inst(self, flags, pulse, length):
+    @staticmethod
+    def stop_inst(flags, pulse, length):
         """Sends a STOP instruction to a PulseBlaster. Stop execution of
         program. Aborts the operation of the micro-controller with no control
         of output states (all TTL values remain from previous instruction).
@@ -109,7 +111,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'STOP', 0, length)
 
-    def loop_inst(self, flags, pulse, length, num_loops):
+    @staticmethod
+    def loop_inst(flags, pulse, length, num_loops):
         """Sends a LOOP instruction to a PulseBlaster. Specify beginning of a
         loop. Execution continues to next instruction. Data used to specify
         number of loops.
@@ -128,7 +131,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'LOOP', num_loops, length)
 
-    def end_loop_inst(self, flags, pulse, length, addr):
+    @staticmethod
+    def end_loop_inst(flags, pulse, length, addr):
         """Sends a END_LOOP instruction to a PulseBlaster. Specify the end of a
         loop. Execution returns to beginning of loop and decrements loop
         counter.
@@ -147,7 +151,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'END_LOOP', addr, length)
 
-    def jsr_inst(self, flags, pulse, length, addr):
+    @staticmethod
+    def jsr_inst(flags, pulse, length, addr):
         """Sends a JSR instruction to a PulseBlaster. Program execution jumps
         to beginning of a subroutine. See note [2].
 
@@ -165,7 +170,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'JSR', addr, length)
 
-    def rts_inst(self, flags, pulse, length):
+    @staticmethod
+    def rts_inst(flags, pulse, length):
         """Sends a RTS instruction to a PulseBlaster. Program execution returns
         to instruction after JSR was called. See note [2].
 
@@ -182,7 +188,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'RTS', 0, length)
 
-    def branch_inst(self, flags, pulse, length, addr):
+    @staticmethod
+    def branch_inst(flags, pulse, length, addr):
         """Sends a BRANCH instruction to a PulseBlaster. Program execution
         continues at specified instruction.
 
@@ -200,7 +207,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'BRANCH', addr, length)
 
-    def long_delay_inst(self, flags, pulse, length, delay):
+    @staticmethod
+    def long_delay_inst(flags, pulse, length, delay):
         """Sends a LONG_DELAY instruction to a PulseBlaster. For long interval
         instructions. Data field specifies a multiplier of the delay field.
         Execution continues to next instuction. See note [2].
@@ -219,7 +227,8 @@ class PulseBlasterESRPRO(PulseBlaster):
         """
         return _write_inst(flags, pulse, 'LONG_DELAY', delay, length)
 
-    def wait_inst(self, flags, pulse, length):
+    @staticmethod
+    def wait_inst(flags, pulse, length):
         """Sends a WAIT instruction to a PulseBlaster. Program execution stops
         and waits for a software or hardware trigger. Execution continues to
         next instruction after receipt of trigger. The latency is equal to the
@@ -244,8 +253,6 @@ class PulseBlasterESRPRO(PulseBlaster):
 #############
 ## Private ##
 #############
-
-# Avoid referencing to these values outside of this module
 
 def _write_inst(flags, pulse, inst, inst_data, length):
     """Writes an instruction to a PulseBlasterESR-PRO board. Raises an
