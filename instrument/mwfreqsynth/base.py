@@ -1,4 +1,4 @@
-from instrument.base import *
+from instrument import *
 
 class MWFreqSynth(Instrument):
     _parameters = {

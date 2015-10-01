@@ -1,18 +1,39 @@
-import visa
-from instrument.base import *
+"""
+VisaInstrument Module
 
-# TODO(Jeffrey): Make sure definition is general.
+VisaInstrument module, which contains
+
+Importable:
+  - VisaInstrument
+"""
+
+import visa
+from instrument import *
+
+__all__ = ['VisaInstrument']
+
 class VisaInstrument(Instrument):
-    _parameters = {}
+    """Visa Instrument Interface.
+
+    The Visa Instrument interface, which needs a better docstring.
+
+    Parameters:
+      ...
+
+    Instance Attributes:
+      - self._instr (visa.resource.Resource):
+      ...
+
+    Class Attributes:
+      ...
+    """
     _instructions = {}
 
     def _connect(self):
         self._instr = visa.ResourceManager().open_resource(self.address)
-        self._connected = True
 
     def _disconnect(self):
         self._instr.close()
-        self._connected = False
         self._instr = None
 
     def _read(self, string):

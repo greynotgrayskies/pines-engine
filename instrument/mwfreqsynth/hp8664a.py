@@ -1,4 +1,4 @@
-from instrument.mwfreqsynth.base import *
+from instrument.mwfreqsynth import *
 from instrument.lib.visainstrument import VisaInstrument
 import visa
 

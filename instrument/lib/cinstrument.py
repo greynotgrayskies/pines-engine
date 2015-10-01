@@ -8,7 +8,7 @@ Importable:
   - CInstrument
 """
 
-from instrument.base import *
+from instrument import *
 from ctypes import *
 
 __all__ = ['CInstrument']
