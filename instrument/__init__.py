@@ -42,9 +42,9 @@ class Instrument(object):
 
     def _reset(self):
         """Resets an instrument. Performs a sequence of actions that resets an
-        instrument to its default state. Will always be called upon the
-        beginning of an experiment, and before disconnecting from an
-        experiment.
+        instrument to its default state. Will always be called once upon engine
+        initialization and engine teardown. May also be called in between
+        experiments, if desired.
         """
         return NotImplemented()
 

@@ -18,16 +18,20 @@ class VisaInstrument(Instrument):
     The Visa Instrument interface, which needs a better docstring.
 
     Parameters:
+      - address (str):
       ...
 
     Instance Attributes:
-      - self._instr (visa.resource.Resource):
+      - address (str):
+      - _instr (visa.resource.Resource):
       ...
 
     Class Attributes:
       ...
     """
-    _instructions = {}
+    def __init__(self, address, **kwargs):
+        Instrument.__init__(self, **kwargs)
+        self.address = address
 
     def _connect(self):
         self._instr = visa.ResourceManager().open_resource(self.address)
@@ -37,22 +41,34 @@ class VisaInstrument(Instrument):
         self._instr = None
 
     def _read(self, string):
-        # TODO(Jeffrey): I doubt this is the only kind of error that might be
-        # raised. Read should probably check for errors as well.
         try:
-            return str(self._instr.query(string)).strip()
+            return self._instr.query(string)
         except visa.VisaIOError as e:
-            raise InstrumentError('Error reading command ({0}): {1}'.format(string, e.message))
+            raise InstrumentError('Error reading command ({0}): {1}'.format(
+                    string, e.message))
+        except TypeError:
+            raise InstrumentError('{0} instrument is not connected.'.format(
+                    type(self).__name__)
 
     def _write(self, string):
-        self._instr.write(string)
-        # TODO(Jeffrey): This line is specific for HP8664A. Different
-        # instruments may have different protocols for checking for errors.
-        # Generalize? Or should we completely ignore erroneous writes?
-        # To keep it general, it might be best to ignore errors. Instruments
-        # can check for errors by themselves.
-        error = self._read(self._instruction_str('check_error'))
-        error, msg = error.strip().split(',')
-        if error != '0':
-            raise InstrumentError('Command ({0}) raised an error: {1} (Error code: {2})'.format(string, msg, error))
+        try:
+            self._instr.write(string)
+        except visa.VisaIOError as e:
+            raise InstrumentError('Error reading command ({0}): {1}'.format(string, e.message))
+        except TypeError:
+            raise InstrumentError('{0} instrument is not connected.'.format(
+                    type(self).__name__)
+    
+    
+    ######################
+    ## Abstract Methods ##
+    ######################
+
+    def check_error(self):
+        """Checks instrument for an error. If an error was encountered, then
+        this function raises an InstrumentError.
+        
+        Always called after a read or write operation.
+        """
+        return NotImplemented
 
