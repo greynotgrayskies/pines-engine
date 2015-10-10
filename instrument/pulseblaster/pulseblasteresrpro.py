@@ -30,37 +30,6 @@ class PulseBlasterESRPRO(PulseBlaster):
       ...
     """
 
-    def _connect(self):
-        if PulseBlasterESRPRO.pb_select_board(self.device_num) != 0:
-            raise InstrumentError('cannot select board {0} to connect: {1}'.format(
-                    self.device_num, PulseBlasterESRPRO.pb_get_error()))
-        if PulseBlasterESRPRO.pb_init() != 0:
-            raise InstrumentError('cannot initialize board {0}: {1}'.format(
-                    self.device_num, PulseBlasterESRPRO.pb_get_error()))
-        PulseBlasterESRPRO.pb_core_clock(self.clock_freq)
-
-    # TODO(Jeffrey): Check to see if board properly disconnects if in the
-    # middle of writing a PulseBlaster program.
-    def _disconnect(self):
-        if PulseBlasterESRPRO.pb_select_board(self.device) != 0:
-            raise InstrumentError('cannot select board {0} to disconnect: {1}'.format(
-                    self.device_num, PulseBlasterESRPRO.pb_get_error()))
-        if PulseBlasterESRPRO.pb_stop() != 0:
-            raise InstrumentError('cannot stop board {0}: {1}'.format(
-                    self.device_num, PulseBlasterESRPRO.pb_get_error()))
-        if PulseBlasterESRPRO.pb_close() != 0:
-            raise InstumentError('cannot close board {0}: {1}'.format(
-                    self.device_num, PulseBlasterESRPRO.pb_get_error()))
-
-    def _reset(self):
-        if PulseBlasterESRPRO.pb_select_board(self.device) != 0:
-            raise InstrumentError('cannot select board {0} to reset: {1}'.format(
-                    self.device_num, PulseBlasterESRPRO.pb_get_error()))
-        if PulseBlasterESRPRO.pb_reset() != 0:
-            raise InstrumentError('cannot reset board {0}: {1}'.format(
-                    self.device_num, PulseBlasterESRPRO.pb_get_error()))
-
-
     ######################################
     ## PulseBlasterESR-PRO Instructions ##
     ######################################
@@ -232,7 +201,7 @@ class PulseBlasterESRPRO(PulseBlaster):
         """Sends a WAIT instruction to a PulseBlaster. Program execution stops
         and waits for a software or hardware trigger. Execution continues to
         next instruction after receipt of trigger. The latency is equal to the
-        delay value entred in the WAIT instruction line, plus a fixed delay of
+        delay value entered in the WAIT instruction line, plus a fixed delay of
         6 clock cycles. The WAIT opcode may not be used by the first
         instruction in memory.
 
@@ -253,6 +222,8 @@ class PulseBlasterESRPRO(PulseBlaster):
 #############
 ## Private ##
 #############
+
+from instrument.pulseblaster import pb_inst_pbonly
 
 def _write_inst(flags, pulse, inst, inst_data, length):
     """Writes an instruction to a PulseBlasterESR-PRO board. Raises an
@@ -286,7 +257,7 @@ def _write_inst(flags, pulse, inst, inst_data, length):
         raise InstrumentError('{0} length ({1} ns) out of bounds'.format(
                 (inst, length)))
 
-    addr = PulseBlasterESRPRO.pb_inst_pbonly(
+    addr = pb_inst_pbonly(
             flags | PulseBlasterESRPRO.pulses[pulse],
             PulseBlasterESRPRO.opcodes[inst],
             inst_data,

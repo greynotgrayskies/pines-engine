@@ -3,14 +3,14 @@ from instrument.mwfreqsynth import *
 from instrument.lib.visainstrument import *
 import visa
 
-class HP8673C(MWFreqSynth, VisaInstrumnet):
+class HP8673C(MWFreqSynth, VisaInstrument):
     def _reset(self):
         pass
 
-    def get_error_no(self):
-        return 0
+    def _get_error_no(self):
+        return self.get_error_no_inst()
 
-    def get_error_msg(self):
+    def _get_error_msg(self):
         return ''
 
     ######################
@@ -20,42 +20,22 @@ class HP8673C(MWFreqSynth, VisaInstrumnet):
     # TODO(Jeffrey): Temporary, until I figure out how the commands are
     # formatted
 
-    def set_amplitude(self, val):
-        write_and_check_error('AP {0} DM'.format(val))
+    def get_error_no_inst(self):
+        return int(self._read('MG'))
 
+    @VisaInstrument.check_error
+    def set_amp(self, val):
+        self._write('AP {0} DM'.format(val))
+
+    @VisaInstrument.check_error
     def set_freq(self, val):
-        write_and_check_error('FR {0} MZ'.format(val))
+        self._write('FR {0} MZ'.format(val))
 
+    @VisaInstrument.check_error
     def power_on(self, val):
-        write_and_check_error('RF1')
+        self._write('RF1')
 
+    @VisaInstrument.check_error
     def power_off(self, val):
-        write_and_check_error('RF0')
-
-#####################
-## Private methods ##
-#####################
-
-def read_and_check_error(instrument, val):
-    """Read from an instrument and check for an error. If an error is
-    encountered, an InstrumentError is raised.
-    """
-    val = instrument._read(val)
-    if instrument.get_error_no() != 0:
-        # Reprocure error message, since checking clears it
-        instrument._read(val)
-        raise InstrumentError("Error reading '{0}' from HP8673C: {1}".format(
-                val, instrument.get_error_msg()))
-    return val
-
-def write_and_check_error(instrument, val):
-    """Write to an instrument and check for an error. If an error is
-    encountered, an InstrumentError is raised.
-    """
-    instrument._write(val)
-    if instrument.get_error_no() != 0:
-        # Reprocure error message, since checking clears it
-        instrument._write(val)
-        raise InstrumentError("Error writing '{0}' to HP8673C: {1}".format(
-                val, instrument.get_error_msg()))
+        self._write('RF0')
 

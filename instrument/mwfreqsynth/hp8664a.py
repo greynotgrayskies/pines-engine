@@ -1,40 +1,102 @@
+"""
+HP8664A Module
+
+HP8664A Module, which contains the HP8664A class.
+
+Documentation for the HP8664A can be found here:
+http://literature.cdn.keysight.com/litweb/pdf/08665-90078.pdf?id=88769
+
+Importable:
+  - HP8664A
+"""
 from instrument import *
 from instrument.mwfreqsynth import *
 from instrument.lib.visainstrument import *
 import visa
 
+__all__ = ['HP8664A']
+
 class HP8664A(MWFreqSynth, VisaInstrument):
+    """HP8664A Instrument Class.
+
+    Parameters:
+      ...
+
+    Instance Attributes:
+      ...
+
+    Class Attributes:
+      ...
+    """
+
+    #######################
+    ## Overriden Methods ##
+    #######################
+
     def _reset(self):
-        # TODO: What exactly needs to be done to reset this anyways?
-        pass
+        set_presets_inst(self)
+
+    def get_power(self):
+        return self.get_amp_inst()
+
+    def set_power(self, power, unit=''):
+        self.set_amp_inst(power, unit)
 
     def get_freq(self):
-        return float(self._read(self._instruction_str('freq_get')))
+        return self.get_freq_inst()
 
-    def set_freq(self, freq=None):
-        if freq is not None:
-            self.freq = freq
-        self._write(self._instruction_str('freq_set'))
+    def set_freq(self, freq, unit=''):
+        self.set_freq_inst(freq, unit)
 
-    def get_error_no(self):
-        pass
+    def _get_error_no(self):
+        return int(self.get_error_inst())
 
-    def get_error_msg(self):
-        pass
+    def _get_error_msg(self):
+        return self.get_error_inst('STR').split(',')[1].strip()
 
+    #####################
+    ## HP8664A Methods ##
+    #####################
 
-    ######################
-    ## HP8664A Commands ##
-    ######################
+    # Methods here are unique to the HP8664A class. There's no need to make
+    # them private, but calling them from an experiment means that the
+    # experiment will be dependent on a particular instrument.
 
     # TODO(Jeffrey): Double check get commands. The read might return the value
     # in weird string formats.
+
+    #####################
+    ## System Commands ##
+    #####################
+
+    def set_presets_inst(self):
+        """Causes the Signal Generator to do an instrument preset, and sets all
+        operating parameters to their *RST value.
+        """
+        self._write('*RST')
+
+    def get_error_inst(self, error_format='NUM'):
+        """Reads an error from the system error queue. Returns a zero if the
+        queue is empty. If a numeric format is used, the signal generator
+        returns only a number. If a string format is used, then the signal
+        generator returns a number followed by a comma, and a quoted string
+        containing a standard generic error message, a colon, and a specific
+        error message.
+
+        Parameters:
+          - error_format (str): An error format ('NUM' or 'STR')
+
+        Returns:
+          - str: Error output
+        """
+        return self._read('SYST:ERR? {0}'.format(error_format))
 
     ##################
     ## AM Subsystem ##
     ##################
 
-    def get_am_depth(self):
+    @VisaInstrument.check_error
+    def get_am_depth_inst(self):
         """Gets the AM depth in percent.
 
         *RST value is 0%.
@@ -42,11 +104,10 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - float: AM depth in percent.
         """
-        val = self._read('AM:DEPTH?')
-        self.check_error()
-        return val
+        return self._read('AM:DEPTH?')
 
-    def set_am_depth(self, val):
+    @VisaInstrument.check_error
+    def set_am_depth_inst(self, val):
         """Sets the AM depth in percent.
 
         Can also set the AM depth to the 'MIN' or 'MAX' AM depth.
@@ -55,9 +116,9 @@ class HP8664A(MWFreqSynth, VisaInstrument):
          - val (float/str): AM depth in percent.
         """
         self._write('AM:DEPTH {0}'.format(val))
-        self.check_error()
 
-    def get_am_depth_step(self):
+    @VisaInstrument.check_error
+    def get_am_depth_step_inst(self):
         """Returns the AM depth step size in percent.
 
         *RST value is 1%.
@@ -65,11 +126,10 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - float: AM depth step size in percent.
         """
-        val = self._read('AM:DEPTH:STEP:INCR?')
-        self.check_error()
-        return val
+        return self._read('AM:DEPTH:STEP:INCR?')
 
-    def set_am_depth_step(self, val):
+    @VisaInstrument.check_error
+    def set_am_depth_step_inst(self, val):
         """Sets the AM depth size in percent.
 
         Can also set the AM depth step size to the 'MIN' or 'MAX' AM depth step
@@ -79,9 +139,9 @@ class HP8664A(MWFreqSynth, VisaInstrument):
           - val (float/str): AM depth step size in percent.
         """
         self._write('AM:DEPTH:STEP:INCR {0}'.format(val))
-        self.check_error()
 
-    def get_AM_state(self):
+    @VisaInstrument.check_error
+    def get_AM_state_inst(self):
         """Returns the AM modulation state, which is either 'ON' (1) or 'OFF'
         (0).
 
@@ -90,20 +150,19 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - float: AM modulation state.
         """
-        val = self._read('AM:STAT?')
-        self.check_error()
-        return val
+        return self._read('AM:STAT?')
 
-    def set_AM_state(self, val):
+    @VisaInstrument.check_error
+    def set_AM_state_inst(self, val):
         """Sets the AM modulation state, which is either 'ON' (1) or 'OFF' (0).
 
         Parameters:
           - val (float/str): AM modulation state.
         """
         self._write('AM:STAT {0}'.format(val))
-        self.check_error()
 
-    def get_AM_source(self):
+    @VisaInstrument.check_error
+    def get_AM_source_inst(self):
         """Returns the AM source.
 
         *RST value is 'INT'.
@@ -111,11 +170,10 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - str: AM source.
         """
-        val = self._read('AM:SOUR?')
-        self.check_error()
-        return val
+        return self._read('AM:SOUR?')
 
-    def set_AM_source(self, val):
+    @VisaInstrument.check_error
+    def set_AM_source_inst(self, val):
         """Sets the AM source: 'EXTernal' or 'INTernal'. 'INTernal,EXTernal' is
         accepted but will cause an execution error since the Signal Generator
         does not use both the internal audio source and an external audio
@@ -125,10 +183,9 @@ class HP8664A(MWFreqSynth, VisaInstrument):
           - val (str): AM source.
         """
         self._write('AM:SOUR {0}'.format(val))
-        self.check_error()
 
-    # TODO(Jeffrey): 'GND' or 'GRO'?
-    def get_AM_coupling(self):
+    @VisaInstrument.check_error
+    def get_AM_coupling_inst(self):
         """Returns the source coupling for AM.
 
         *RST value is DC.
@@ -136,11 +193,10 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - str: source coupling for AM ('GRO', 'DC', 'AC').
         """
-        val = self._read('AM:COUP?')
-        self.check_error()
-        return val
+        return self._read('AM:COUP?')
 
-    def set_AM_coupling(self, val):
+    @VisaInstrument.check_error
+    def set_AM_coupling_inst(self, val):
         """Sets the source coupling for AM. 'GROund' coupling is equivalent to
         having NONE displayed on the front panel; it does not turn AM off, but
         all sources are disconnected.
@@ -149,9 +205,9 @@ class HP8664A(MWFreqSynth, VisaInstrument):
           - val (str): source coupling for AM ('GRO', 'DC', 'AC').
         """
         self._write('AM:COUP {0}'.format(val))
-        self.check_error()
 
-    def get_AM_freq(self):
+    @VisaInstrument.check_error
+    def get_AM_freq_inst(self):
         """Returns the AM frequency in Hz.
 
         *RST value is 1 kHz.
@@ -161,11 +217,10 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - float: AM frequency .
         """
-        val = self._read('AM:FREQ?')
-        self.check_error()
-        return val
+        return self._read('AM:FREQ?')
 
-    def set_AM_freq(self, val, unit='HZ'):
+    @VisaInstrument.check_error
+    def set_AM_freq_inst(self, val, unit='HZ'):
         """Sets the AM frequency.
 
         Alias to `set_LFS_freq`.
@@ -175,9 +230,9 @@ class HP8664A(MWFreqSynth, VisaInstrument):
           - unit (str): Frequency unit.
         """
         self._write('AM:FREQ {0}'.format(val))
-        self.check_error()
 
-    def get_AM_freq_step(self):
+    @VisaInstrument.check_error
+    def get_AM_freq_step_inst(self):
         """Returns the AM frequency step size.
 
         *RST value is 100 Hz.
@@ -187,11 +242,10 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - float: AM frequency step size.
         """
-        val = self._read('AM:FREQ:STEP:INCR?')
-        self.check_error()
-        return val
+        return self._read('AM:FREQ:STEP:INCR?')
 
-    def set_AM_freq_step(self, val):
+    @VisaInstrument.check_error
+    def set_AM_freq_step_inst(self, val):
         """Sets the AM frequency step size. 
         
         Alias to `set_LFS_freq_step`.
@@ -200,14 +254,14 @@ class HP8664A(MWFreqSynth, VisaInstrument):
           - val (float/str): AM frequency step size.
         """
         self._write('AM:FREQ:STEP:INCR {0}'.format(val))
-        self.check_error()
 
 
     #########################
     ## Amplitude Subsystem ##
     #########################
 
-    def get_amp_source_level(self):
+    @VisaInstrument.check_error
+    def get_amp_inst(self):
         """Returns the CW amplitude.
 
         *RST value is -140.0 dBm.
@@ -215,67 +269,84 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - float: CW amplitude.
         """
-        val = self._read('AMPL:SOUR:LEV?')
-        self.check_error()
-        return val
+        return self._read('AMPL:SOUR:LEV?')
 
-    def set_amp_source_level(self, val):
+    @VisaInstrument.check_error
+    def set_amp_inst(self, val):
         """Sets the CW amplitude.
 
         Parameters:
           - val (float/str): CW amplitude.
         """
         self._write('AMPL:SOUR:LEV {0}'.format(val))
-        self.check_error()
 
-    def get_amp_source_step(self):
-        """Returns the amplitude step size.
+    @VisaInstrument.check_error
+    def get_amp_source_level_inst(self):
+        """Returns the CW source amplitude.
+
+        *RST value is -140.0 dBm.
+
+        Returns:
+          - float: CW amplitude.
+        """
+        return self._read('AMPL:SOUR:LEV?')
+
+    @VisaInstrument.check_error
+    def set_amp_source_level_inst(self, val):
+        """Sets the CW source amplitude.
+
+        Parameters:
+          - val (float/str): CW amplitude.
+        """
+        self._write('AMPL:SOUR:LEV {0}'.format(val))
+
+    @VisaInstrument.check_error
+    def get_amp_source_step_inst(self):
+        """Returns the source amplitude step size.
 
         *RST value is 10 dB.
 
         Returns:
           - float: amplitude step size.
         """
-        val = self._read('AMPL:SOUR:LEV:STEP:INCR?')
-        self.check_error()
-        return val
+        return self._read('AMPL:SOUR:LEV:STEP:INCR?')
 
-    def set_amp_source_step(self, val, unit=''):
-        """Sets the amplitude step size.
+    @VisaInstrument.check_error
+    def set_amp_source_step_inst(self, val, unit=''):
+        """Sets the source amplitude step size.
 
         Parameters:
           - val (float/str): amplitude step size.
           - unit (str): Amplitude unit.
         """
         if unit:
-            val = '{0} {1}'.format(val, unit)
+            return '{0} {1}'.format(val, unit)
         self._write('AMPL:SOUR:LEV:STEP:INCR {0}'.format(val))
-        self.check_error()
 
-    def get_amp_source_unit(self):
-        """Returns the unit for amplitude steps.
+    @VisaInstrument.check_error
+    def get_amp_source_unit_inst(self):
+        """Returns the unit for source amplitude steps.
 
         *RST value is dB.
 
         Returns:
           - str: Amplitude step unit.
         """
-        val = self._read('AMPLITUDE:SOUR:LEV:UNIT?')
-        self.check_error()
-        return val
+        return self._read('AMPLITUDE:SOUR:LEV:UNIT?')
 
-    def set_amp_source_unit(self, val):
-        """Sets the unit for amplitude steps.
+    @VisaInstrument.check_error
+    def set_amp_source_unit_inst(self, val):
+        """Sets the unit for source amplitude steps.
 
         Parameters:
           - val (str): Amplitude step unit.
         """
         self._write('AMPLITUDE:SOUR:LEV:UNIT {0}'.format(val))
-        self.check_error()
 
-    def get_amp_source_state(self):
-        """Returns the state of the RF output. 'OFF' (0) indicates that the
-        output is disabled, while 'ON' (1) indicates that it is enabled.
+    @VisaInstrument.check_error
+    def get_amp_source_state_inst(self):
+        """Returns the state of the RF source output. 'OFF' (0) indicates that
+        the output is disabled, while 'ON' (1) indicates that it is enabled.
         Setting the amplitude source level does not turn this on implicitly.
 
         *RST value is 'OFF'.
@@ -283,67 +354,45 @@ class HP8664A(MWFreqSynth, VisaInstrument):
         Returns:
           - float: Amplitude state.
         """
-        val = self._read('AMPL:STAT?')
-        self.check_error()
-        return val
+        return self._read('AMPL:STAT?')
 
-    def set_amp_source_state(self, val):
-        """Sets the state of the RF output. 'OFF' (0) indicates that the output
-        is disabled, while 'ON' (1) indicates that it is enabled. Setting the
-        amplitude source level does not turn this on implicitly.
+    @VisaInstrument.check_error
+    def set_amp_source_state_inst(self, val):
+        """Sets the state of the RF source output. 'OFF' (0) indicates that the
+        output is disabled, while 'ON' (1) indicates that it is enabled.
+        Setting the amplitude source level does not turn this on implicitly.
 
         Parameters:
           - val (float/str): Amplitude state.
         """
         self._write('AMPL:STAT {0}'.format(val))
-        self.check_error()
 
-    def get_funcname1(self):
-        """Returns the description3
+    #########################
+    ## Frequency Subsystem ##
+    #########################
 
-        *RST value is rstval4.
+    @VisaInstrument.check_error
+    def get_freq_inst(self):
+        """Returns the non-swept frequency. Does not disable sweep.
+
+        *RST value is 1500 MHz.
 
         Returns:
-          - float: value2.
+          - float: Non-swept frequency.
         """
-        val = self._read('cmd0?')
-        self.check_error()
-        return val
+        return self._read('FREQ?')
 
-    def set_funcname1(self, val):
-        """Sets the description3
+    @VisaInstrument.check_error
+    def set_freq_inst(self, freq, unit=''):
+        """Sets the non-swept frequency. Does not disable sweep.
+
+        *RST value is 1500 MHz.
 
         Parameters:
-          - val (float/str): value2.
+          - freq (float): Non-swept frequency.
+          - unit (str): Frequency unit ('HZ', 'KHZ', 'MHZ', 'MAHZ', 'GHZ').
         """
-        self._write('cmd0 {0}'.format(val))
-        self.check_error()
-
-
-#####################
-## Private methods ##
-#####################
-
-def read_and_check_error(instrument, val):
-    """Read from an instrument and check for an error. If an error is
-    encountered, an InstrumentError is raised.
-    """
-    val = instrument._read(val)
-    if instrument.get_error_no() != 0:
-        # Reprocure error message, since checking clears it
-        instrument._read(val)
-        raise InstrumentError("Error reading '{0}' from HP8664A: {1}".format(
-                val, instrument.get_error_msg()))
-    return val
-
-def write_and_check_error(instrument, val):
-    """Write to an instrument and check for an error. If an error is
-    encountered, an InstrumentError is raised.
-    """
-    instrument._write(val)
-    if instrument.get_error_no() != 0:
-        # Reprocure error message, since checking clears it
-        instrument._write(val)
-        raise InstrumentError("Error writing '{0}' to HP8664A: {1}".format(
-                val, instrument.get_error_msg()))
+        if unit != '':
+            unit = ' ' + unit
+        return self._read('FREQ {0}{1}'.format(freq, unit))
 

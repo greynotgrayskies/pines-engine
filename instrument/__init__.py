@@ -23,10 +23,17 @@ class Instrument(object):
 
     Instance Attributes:
       - _engine (Engine): The experiment engine.
+      - _id (int): Instrument ID, for identification.
+
+    Class Attributes:
+      - num_instruments (int): Number of instruments instantiated.
     """
+    num_instruments = 0
 
     def __init__(self, engine):
         self._engine = engine
+        self._id = Instrument.num_instruments
+        Instrument.num_instruments += 1
 
     def _connect(self):
         """Connect to an instrument. This function will always be called once
@@ -47,6 +54,9 @@ class Instrument(object):
         experiments, if desired.
         """
         return NotImplemented()
+
+    def __str__(self):
+        return '{0}(id:{1})'.format(type(self).__name__, self._id)
 
 class InstrumentError(Exception):
     """Base exception raised by instruments."""
