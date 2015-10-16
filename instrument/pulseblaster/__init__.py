@@ -579,7 +579,7 @@ _FUNCTIONS = {
     'pb_start':                 (c_int, ()),
     'pb_stop':                  (c_int, ()),
     'pb_reset':                 (c_int, ()),
-    'pb_inst_pbonly':           (c_int, (c_longlong,)),
+    'pb_inst_pbonly':           (c_int, (c_uint, c_int, c_int, c_double)),
     'pb_get_error':             (c_char_p, ()),
 }
 

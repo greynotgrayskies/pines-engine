@@ -253,9 +253,6 @@ def _write_inst(flags, pulse, inst, inst_data, length):
     if (inst_data >> INST_DATA_SIZE) != 0:
         raise InstrumentError('{0} instruction data ({1}) out of bounds.'.format(
                 inst, hex(inst_data)))
-    if (length >> DELAY_COUNT_SIZE) != 0:
-        raise InstrumentError('{0} length ({1} ns) out of bounds'.format(
-                (inst, length)))
 
     addr = pb_inst_pbonly(
             flags | PulseBlasterESRPRO.pulses[pulse],
