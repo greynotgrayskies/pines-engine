@@ -42,8 +42,12 @@ class VisaInstrument(Instrument):
       ...
 
     Class Attributes:
+      - _visamodule (module): Visa module used for communicating with
+        instuments. Defined to facilitate testing. Do not modify otherwise.
       ...
     """
+    _visamodule = visa
+
     def __init__(self, address, **kwargs):
         Instrument.__init__(self, **kwargs)
         self.address = address
@@ -54,7 +58,9 @@ class VisaInstrument(Instrument):
     #######################
 
     def _connect(self):
-        self._instr = visa.ResourceManager().open_resource(self.address)
+        rm = VisaInstrument._visamodule.ResourceManager()
+        # What error does this raise for an invalid address?
+        self._instr = rm.open_resource(self.address)
 
     def _disconnect(self):
         self._instr.close()
@@ -81,8 +87,8 @@ class VisaInstrument(Instrument):
             raise InstrumentError('{0} is not connected.'.format(
                     self))
         try:
-            return self._instr.query(instruction)
-        except visa.VisaIOError as e:
+            return str(self._instr.query(instruction))
+        except VisaInstrument._visamodule.VisaIOError as e:
             raise InstrumentError('Error reading {0} instruction ({1}): {2}'.format(
                     self, instruction, e.message))
 
@@ -97,7 +103,7 @@ class VisaInstrument(Instrument):
                     self))
         try:
             self._instr.write(instruction)
-        except visa.VisaIOError as e:
+        except VisaInstrument._visamodule.VisaIOError as e:
             raise InstrumentError('Error writing {0} instruction ({1}): {2}'.format(
                 self, instruction, e.message))
 
@@ -141,7 +147,7 @@ class VisaInstrument(Instrument):
         Returns:
           - int: 0 if there is no error. Anything else otherwise.
         """
-        return NotImplemented
+        raise NotImplementedError
 
     def _get_error_msg(self):
         """Gets the error message of an instrument, assuming a non-zero error
@@ -150,7 +156,7 @@ class VisaInstrument(Instrument):
         Returns:
           - str: An error message.
         """
-        return NotImplemented
+        raise NotImplementedError
 
 ##########################
 ## Error String Formats ##
