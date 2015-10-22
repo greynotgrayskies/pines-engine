@@ -62,9 +62,6 @@ class HP8664A(MWFreqSynth, VisaInstrument):
     # them private, but calling them from an experiment means that the
     # experiment will be dependent on a particular instrument.
 
-    # TODO(Jeffrey): Double check get commands. The read might return the value
-    # in weird string formats.
-
     #####################
     ## System Commands ##
     #####################
