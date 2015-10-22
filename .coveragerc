@@ -1,8 +1,9 @@
 [run]
-include = *
+include = 
+    engine.py
+    instruments/*
 omit =
     */tests*
-    enginetest
 
 [report]
 exclude_lines =
