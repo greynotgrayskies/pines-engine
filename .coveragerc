@@ -1,8 +1,8 @@
 [run]
-include = 
-    engine.py
-    instrument/*
+source = 
+    .
 omit =
+    enginetest
     */tests*
 
 [report]
