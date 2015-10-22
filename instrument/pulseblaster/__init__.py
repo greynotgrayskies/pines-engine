@@ -583,5 +583,10 @@ _FUNCTIONS = {
     'pb_get_error':             (c_char_p, ()),
 }
 
-PulseBlaster.loadDLL(libpath, _FUNCTIONS)
+# TODO: Loading this module shouldn't necessarily fail if the SpinCore library
+# isn't loaded.  Fix it?
+try:
+    PulseBlaster.loadDLL(libpath, _FUNCTIONS)
+except:
+    pass
 

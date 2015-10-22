@@ -38,7 +38,7 @@ class VisaInstrument(Instrument):
 
     Instance Attributes:
       - address (str):
-      - _instr (visa.resource.Resource):
+      - _resource (visa.resource.Resource):
       ...
 
     Class Attributes:
@@ -46,25 +46,24 @@ class VisaInstrument(Instrument):
         instuments. Defined to facilitate testing. Do not modify otherwise.
       ...
     """
-    _visamodule = visa
 
     def __init__(self, address, **kwargs):
         Instrument.__init__(self, **kwargs)
         self.address = address
-        self._instr = None
+        self._resource = None
 
     #######################
     ## Overriden Methods ##
     #######################
 
     def _connect(self):
-        rm = VisaInstrument._visamodule.ResourceManager()
+        rm = visa.ResourceManager()
         # What error does this raise for an invalid address?
-        self._instr = rm.open_resource(self.address)
+        self._resource = rm.open_resource(self.address)
 
     def _disconnect(self):
-        self._instr.close()
-        self._instr = None
+        self._resource.close()
+        self._resource = None
 
     
     ############################
@@ -83,12 +82,12 @@ class VisaInstrument(Instrument):
         Output:
           - str: Resulting output from instruction.
         """
-        if self._instr is None:
+        if self._resource is None:
             raise InstrumentError('{0} is not connected.'.format(
                     self))
         try:
-            return str(self._instr.query(instruction))
-        except VisaInstrument._visamodule.VisaIOError as e:
+            return str(self._resource.query(instruction))
+        except visa.VisaIOError as e:
             raise InstrumentError('Error reading {0} instruction ({1}): {2}'.format(
                     self, instruction, e.message))
 
@@ -98,12 +97,12 @@ class VisaInstrument(Instrument):
         Parameters:
           - instruction (str): instruction sequence sent to the instrument.
         """
-        if self._instr is None:
+        if self._resource is None:
             raise InstrumentError('{0} is not connected.'.format(
                     self))
         try:
-            self._instr.write(instruction)
-        except VisaInstrument._visamodule.VisaIOError as e:
+            self._resource.write(instruction)
+        except visa.VisaIOError as e:
             raise InstrumentError('Error writing {0} instruction ({1}): {2}'.format(
                 self, instruction, e.message))
 
