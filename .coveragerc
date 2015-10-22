@@ -1,7 +1,7 @@
 [run]
 include = 
     engine.py
-    instruments/*
+    instrument/*
 omit =
     */tests*
 
