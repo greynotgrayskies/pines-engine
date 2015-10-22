@@ -1,6 +1,8 @@
 [run]
+include = .
 omit =
-    */*test*
+    */tests*
+    enginetest
 
 [report]
 exclude_lines =
