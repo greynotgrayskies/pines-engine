@@ -30,8 +30,7 @@ class Instrument(object):
     """
     num_instruments = 0
 
-    def __init__(self, engine):
-        self._engine = engine
+    def __init__(self):
         self._id = Instrument.num_instruments
         Instrument.num_instruments += 1
 

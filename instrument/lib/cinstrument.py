@@ -9,7 +9,7 @@ Importable:
 """
 
 from instrument import *
-from ctypes import *
+import ctypes
 
 __all__ = ['CInstrument']
 
@@ -44,9 +44,13 @@ class CInstrument(Instrument):
             names mapped to `restype`, `argtypes` pairs
         """
         try:
-            cls._lib = CDLL(libpath)
+            cls._lib = ctypes.CDLL(libpath)
         except OSError as e:
             raise InstrumentError("cannot load file at '{0}': {1}".format(libpath, e.args[0]))
+        # TODO(Jeffrey): It would probably be nice to actually wrap the
+        # functions here so that we're dealing with Python functions. Though
+        # the problem with that is arrays and mutation are problematic with
+        # that particular approach.
         for fn_name, types in functions.items():
             fn = getattr(cls._lib, fn_name)
             fn.restype = types[0]

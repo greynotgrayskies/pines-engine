@@ -38,27 +38,32 @@ class VisaInstrument(Instrument):
 
     Instance Attributes:
       - address (str):
-      - _instr (visa.resource.Resource):
+      - _resource (visa.resource.Resource):
       ...
 
     Class Attributes:
+      - _visamodule (module): Visa module used for communicating with
+        instuments. Defined to facilitate testing. Do not modify otherwise.
       ...
     """
+
     def __init__(self, address, **kwargs):
         Instrument.__init__(self, **kwargs)
         self.address = address
-        self._instr = None
+        self._resource = None
 
     #######################
     ## Overriden Methods ##
     #######################
 
     def _connect(self):
-        self._instr = visa.ResourceManager().open_resource(self.address)
+        rm = visa.ResourceManager()
+        # What error does this raise for an invalid address?
+        self._resource = rm.open_resource(self.address)
 
     def _disconnect(self):
-        self._instr.close()
-        self._instr = None
+        self._resource.close()
+        self._resource = None
 
     
     ############################
@@ -77,11 +82,11 @@ class VisaInstrument(Instrument):
         Output:
           - str: Resulting output from instruction.
         """
-        if self._instr is None:
+        if self._resource is None:
             raise InstrumentError('{0} is not connected.'.format(
                     self))
         try:
-            return self._instr.query(instruction)
+            return str(self._resource.query(instruction))
         except visa.VisaIOError as e:
             raise InstrumentError('Error reading {0} instruction ({1}): {2}'.format(
                     self, instruction, e.message))
@@ -92,11 +97,11 @@ class VisaInstrument(Instrument):
         Parameters:
           - instruction (str): instruction sequence sent to the instrument.
         """
-        if self._instr is None:
+        if self._resource is None:
             raise InstrumentError('{0} is not connected.'.format(
                     self))
         try:
-            self._instr.write(instruction)
+            self._resource.write(instruction)
         except visa.VisaIOError as e:
             raise InstrumentError('Error writing {0} instruction ({1}): {2}'.format(
                 self, instruction, e.message))
@@ -141,7 +146,7 @@ class VisaInstrument(Instrument):
         Returns:
           - int: 0 if there is no error. Anything else otherwise.
         """
-        return NotImplemented
+        raise NotImplementedError
 
     def _get_error_msg(self):
         """Gets the error message of an instrument, assuming a non-zero error
@@ -150,7 +155,7 @@ class VisaInstrument(Instrument):
         Returns:
           - str: An error message.
         """
-        return NotImplemented
+        raise NotImplementedError
 
 ##########################
 ## Error String Formats ##
