@@ -1,6 +1,9 @@
 [run]
+source = 
+    .
 omit =
-    */*test*
+    ./enginetest/*
+    */tests/*
 
 [report]
 exclude_lines =
