@@ -19,10 +19,8 @@ class Instrument(object):
     an instrument.
 
     Parameters:
-      - engine (Engine): The experiment engine.
 
     Instance Attributes:
-      - _engine (Engine): The experiment engine.
       - _id (int): Instrument ID, for identification.
 
     Class Attributes:

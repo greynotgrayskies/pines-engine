@@ -1,0 +1,8 @@
+{
+    "analysis": "\n    x = 3\n    ",
+    "experiment": "\n    x = 2\n    string = 'Hello there!'\n    string2 = \"What's up?\"\n    ",
+    "parameters": [
+        "x"
+    ],
+    "setup": "\n    x = 1\n    "
+}
