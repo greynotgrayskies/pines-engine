@@ -1,8 +1,7 @@
 [run]
 source = 
-    .
+    'engine'
 omit =
-    ./enginetest/*
     */tests/*
 
 [report]
