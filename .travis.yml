@@ -8,7 +8,7 @@ before_script:
   - pip install -r requirements.txt
 
 script:
-  - coverage run -m enginetest
+  - coverage run run_test.py
 
 after_success:
   - coveralls
