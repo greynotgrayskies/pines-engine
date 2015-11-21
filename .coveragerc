@@ -1,6 +1,6 @@
 [run]
 source = 
-    'engine'
+    'engine/*'
 omit =
     */tests/*
 
