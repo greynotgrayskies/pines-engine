@@ -4,7 +4,6 @@ import os, sys
 import unittest
 
 if __name__ == '__main__':
-    #sys.path[0] = sys.path[0] + '/engine'
     loader = unittest.TestLoader()
     suite = loader.discover(start_dir='engine', top_level_dir='engine')
     runner = unittest.TextTestRunner(verbosity=2)
