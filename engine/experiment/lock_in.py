@@ -23,7 +23,11 @@ class LockInExperiment(Experiment):
         ),
     }
 
-    parameters = {}
+    parameters = {
+        'lower_freq': IntParmeter('Lower Frequency'),
+        'upper_freq': IntParmeter('Upper Frequency'),
+        'num_samples': IntParmeter('Number of Samples')
+    }
 
     def setup(self, engine):
         # SR830 Setup

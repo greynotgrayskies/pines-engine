@@ -22,7 +22,8 @@ class Engine(object):
 
         # Setup Engine
         self.logger = EngineLogger()
-        self.data = ExperimentData
+        #self.data = ExperimentData
+        self.data = [] # Temp
         self.connect_instruments(experiment)
         Instrument.num_instruments = 0
 
@@ -33,7 +34,7 @@ class Engine(object):
 
         # Analyze Data
         experiment.analyze(self.data)
-    
+
     def connect_instruments(self, experiment):
         for instrument in experiment.instruments:
             instrument = getattr(experiment, instrument)

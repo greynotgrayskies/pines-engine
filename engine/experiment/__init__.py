@@ -56,7 +56,7 @@ class Parameter(object):
             bool: True if the value satisfies the
         """
         raise NotImplementedError
-    
+
     def str_to_param_value(self, param):
         raise NotImplementedError
 
