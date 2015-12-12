@@ -19,18 +19,18 @@ class Instrument(object):
     an instrument.
 
     Parameters:
-      - engine (Engine): The experiment engine.
 
     Instance Attributes:
-      - _engine (Engine): The experiment engine.
       - _id (int): Instrument ID, for identification.
 
     Class Attributes:
+      - engine (Engine): 
       - num_instruments (int): Number of instruments instantiated.
     """
     num_instruments = 0
 
     def __init__(self):
+        self.instrument = None
         self._id = Instrument.num_instruments
         Instrument.num_instruments += 1
 
